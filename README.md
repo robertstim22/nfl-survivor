@@ -19,10 +19,10 @@ sync every 10 minutes.
 | Path | What it is |
 | --- | --- |
 | `index.html`, `app.js`, `style.css` | The website (served by GitHub Pages) |
-| `config.js` | The Worker's URL — edit after deploying |
+| `config.js` | The Worker's URL |
 | `worker/src/` | The API: accounts, picks, ESPN import, grading, scheduled sync |
 | `worker/src/schema.js` | Database tables (created automatically) |
-| `worker/wrangler.toml` | Worker settings: season, admin username, schedule |
+| `wrangler.toml` | Worker settings: season, admin username, schedule |
 
 ## Setup (all in your web browser)
 
@@ -30,11 +30,9 @@ You need a free Cloudflare account (the same one as player-tracker is fine).
 
 1. **Deploy the Worker from GitHub.** In the Cloudflare dashboard, go to **Workers & Pages → Create →
    Import a repository**, connect GitHub if asked, and pick `robertstim22/nfl-survivor`. Use these settings:
-   - Project name: `nfl-survivor` (must match `name` in `worker/wrangler.toml`)
-   - Root directory (under advanced settings): `worker`
-   - Leave the deploy command as `npx wrangler deploy`
+   - Project name: `nfl-survivor` (must match `name` in `wrangler.toml`)
 
-   Click **Deploy**. The first deploy creates the database automatically, and the Worker creates its tables
+   Leave the other settings as they are and click **Deploy**. The first deploy creates the database automatically, and the Worker creates its tables
    the first time it runs. When it finishes, copy the Worker's address, like
    `https://nfl-survivor.<your-subdomain>.workers.dev`. From then on, Cloudflare redeploys the Worker
    whenever you push to GitHub.
@@ -46,13 +44,13 @@ You need a free Cloudflare account (the same one as player-tracker is fine).
    The site will be at `https://robertstim22.github.io/nfl-survivor/`.
 
 4. **Create your account:** open the site, click **Create an account**, and sign up with the username set as
-   `ADMIN_USERNAME` in `worker/wrangler.toml` (currently `tim`). Go to **Admin** and click
+   `ADMIN_USERNAME` in `wrangler.toml` (currently `tim`). Go to **Admin** and click
    **Import full season**.
 
 5. **Invite friends:** send them the site link. They click **Create an account** and pick their own
    username and password.
 
-Settings such as the season, admin username and schedule live in `worker/wrangler.toml`. You can edit
+Settings such as the season, admin username and schedule live in `wrangler.toml`. You can edit
 it on GitHub the same way as `config.js`; Cloudflare redeploys automatically.
 
 ### Optional: invite code
@@ -71,13 +69,13 @@ containing the code, and sign-up only works through that link.
 
 ## Next season
 
-Change `SEASON` in `worker/wrangler.toml` and commit. Returning players are entered into the new
+Change `SEASON` in `wrangler.toml` and commit. Returning players are entered into the new
 season when they sign in; new friends join with the invite link.
 
 ## Development
 
 ```bash
-cd worker
+npm install
 npm test                 # unit tests for pick rules and the ESPN parser
 npx wrangler dev         # API on http://localhost:8787
 ```

@@ -1,11 +1,11 @@
 {
-  "name": "nfl-survivor-worker",
+  "name": "nfl-survivor",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "wrangler dev --test-scheduled",
     "deploy": "wrangler deploy",
-    "test": "node --test test/*.test.js"
+    "test": "node --test worker/test/*.test.js"
   },
   "devDependencies": {
     "wrangler": "4.164.0"
