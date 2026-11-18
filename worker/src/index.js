@@ -1,5 +1,6 @@
 import { createSession, deleteSession, getSessionUser, hashPassword, verifyPassword } from "./auth.js";
 import { isLocked, lockTime, REGULAR_SEASON_WEEKS, validatePassword, validatePick, validateSignup } from "./rules.js";
+import { ensureSchema } from "./schema.js";
 import { getCurrentWeek, gradePicks, importWeek, syncCurrent } from "./sync.js";
 
 class HttpError extends Error {
@@ -14,6 +15,7 @@ export default {
     const cors = corsHeaders(request, env);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     try {
+      await ensureSchema(env.DB);
       const body = await route(request, env);
       return Response.json(body ?? { ok: true }, { headers: cors });
     } catch (e) {
@@ -24,7 +26,7 @@ export default {
   },
 
   async scheduled(_event, env, ctx) {
-    ctx.waitUntil(syncCurrent(env).then((r) => console.log("sync", JSON.stringify(r))));
+    ctx.waitUntil(ensureSchema(env.DB).then(() => syncCurrent(env)).then((r) => console.log("sync", JSON.stringify(r))));
   },
 };
 
@@ -52,7 +54,8 @@ async function route(request, env) {
   if (method === "GET" && (path === "" || path === "/api")) return { name: "nfl-survivor", season };
 
   if (method === "POST" && path === "/api/signup") {
-    if (!env.INVITE_CODE || body.invite !== env.INVITE_CODE) {
+    // Sign-up is open to anyone with the site's address, unless you set an INVITE_CODE secret.
+    if (env.INVITE_CODE && body.invite !== env.INVITE_CODE) {
       throw new HttpError(403, "This invite link isn't valid. Ask the commissioner for a new one.");
     }
     const username = String(body.username ?? "").trim();
@@ -196,7 +199,7 @@ async function route(request, env) {
         .bind(week ?? -1, season)
         .all();
       const last = await db.prepare("SELECT MAX(updated_at) AS t FROM games WHERE season = ?").bind(season).first();
-      return { week, players: rows.results, lastSync: last?.t ?? null, invite: env.INVITE_CODE ?? null };
+      return { week, players: rows.results, lastSync: last?.t ?? null, invite: env.INVITE_CODE || null };
     }
 
     if (method === "POST" && path === "/api/admin/sync") {

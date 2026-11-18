@@ -70,7 +70,8 @@
           <button>Sign in</button>
           <div id="m"></div>
         </form>
-        <p class="muted">New here? You need an invite link from the commissioner. Forgot your password? Ask them to reset it.</p>
+        <p>New here? <a href="#/join">Create an account</a></p>
+        <p class="muted">Forgot your password? Ask the commissioner to reset it.</p>
       </div>`;
     onSubmit("f", async (data) => {
       const { token } = await api("/api/login", data);
@@ -253,16 +254,16 @@
   async function renderAdmin(flash) {
     if (!me.user.isAdmin) return (location.hash = "#/");
     const { week, players, lastSync, invite } = await api("/api/admin/players");
-    const inviteUrl = invite ? `${location.origin}${location.pathname}#/join/${encodeURIComponent(invite)}` : null;
+    const siteUrl = `${location.origin}${location.pathname}`;
+    const inviteUrl = invite ? `${siteUrl}#/join/${encodeURIComponent(invite)}` : `${siteUrl}#/join`;
     const missing = players.filter((p) => p.eliminatedWeek == null && !p.pick);
     app.innerHTML = `
       <h1>Admin</h1>
       <div id="flash"></div>
-      <h2>Invite link</h2>
+      <h2>Invite friends</h2>
       <div class="card">
-        ${inviteUrl
-          ? `<p class="muted">Send this to friends. They'll choose their own username and password.</p><code class="invite">${esc(inviteUrl)}</code>`
-          : `<p class="msg error">No invite code set. Run <code>npx wrangler secret put INVITE_CODE</code> in the worker folder.</p>`}
+        <p class="muted">Send this link to friends. They'll choose their own username and password.</p>
+        <code class="invite">${esc(inviteUrl)}</code>
       </div>
 
       <h2>Week ${esc(week ?? "–")}: who hasn't picked</h2>

@@ -10,14 +10,13 @@ ADMIN_USERNAME = "tim"
 # The GitHub Pages site allowed to call this API
 ALLOWED_ORIGIN = "https://robertstim22.github.io"
 
-# Secret (not stored here): INVITE_CODE — the code in the invite link you send friends.
-#   npx wrangler secret put INVITE_CODE
+# Optional secret INVITE_CODE: if set, people can only sign up through the invite link
+# shown on the Admin page. If not set, anyone with the site's address can sign up.
 
 [[d1_databases]]
 binding = "DB"
 database_name = "nfl-survivor"
-# Paste the id printed by `npx wrangler d1 create nfl-survivor`
-database_id = "REPLACE_WITH_YOUR_DATABASE_ID"
+# No database_id needed: `wrangler deploy` creates the database on the first deploy.
 
 # Every 10 minutes: import games/spreads/scores and grade picks.
 [triggers]
