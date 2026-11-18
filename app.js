@@ -256,7 +256,7 @@
     const { week, players, lastSync, invite } = await api("/api/admin/players");
     const siteUrl = `${location.origin}${location.pathname}`;
     const inviteUrl = invite ? `${siteUrl}#/join/${encodeURIComponent(invite)}` : `${siteUrl}#/join`;
-    const missing = players.filter((p) => p.eliminatedWeek == null && !p.pick);
+    const missing = players.filter((p) => p.eliminatedWeek == null && !p.picked);
     app.innerHTML = `
       <h1>Admin</h1>
       <div id="flash"></div>
@@ -291,7 +291,7 @@
           <tr>
             <td>${esc(p.name)}</td>
             <td class="muted">${esc(p.username)}</td>
-            <td>${esc(p.pick ?? "—")}</td>
+            <td>${p.picked ? `<span class="status alive">Picked ✓</span>` : p.eliminatedWeek == null ? `<span class="muted">Not yet</span>` : "—"}</td>
             <td><span class="status ${p.eliminatedWeek == null ? "alive" : "out"}">${p.eliminatedWeek == null ? "Alive" : `Out W${esc(p.eliminatedWeek)}`}</span></td>
             <td><div class="row">
               ${p.eliminatedWeek == null

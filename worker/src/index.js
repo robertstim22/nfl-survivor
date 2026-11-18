@@ -191,7 +191,7 @@ async function route(request, env) {
       const rows = await db
         .prepare(
           `SELECT e.id AS entryId, u.id AS userId, u.username, u.display_name AS name,
-                  e.eliminated_week AS eliminatedWeek, p.team AS pick
+                  e.eliminated_week AS eliminatedWeek, (p.id IS NOT NULL) AS picked
            FROM entries e JOIN users u ON u.id = e.user_id
            LEFT JOIN picks p ON p.entry_id = e.id AND p.week = ?
            WHERE e.season = ? ORDER BY u.display_name COLLATE NOCASE`,
@@ -199,7 +199,8 @@ async function route(request, env) {
         .bind(week ?? -1, season)
         .all();
       const last = await db.prepare("SELECT MAX(updated_at) AS t FROM games WHERE season = ?").bind(season).first();
-      return { week, players: rows.results, lastSync: last?.t ?? null, invite: env.INVITE_CODE || null };
+      // Only whether each player has picked, never which team (the admin plays too).
+      return { week, players: rows.results.map((p) => ({ ...p, picked: !!p.picked })), lastSync: last?.t ?? null, invite: env.INVITE_CODE || null };
     }
 
     if (method === "POST" && path === "/api/admin/sync") {
